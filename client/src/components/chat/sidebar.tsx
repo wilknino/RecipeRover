@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ interface SidebarProps {
 
 export default function Sidebar({ currentUser, selectedUser, onSelectUser, onOpenProfile }: SidebarProps) {
   const { logoutMutation } = useAuth();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: conversations = [] } = useQuery<Array<Conversation & { otherUser: User; lastMessage?: Message }>>({
@@ -33,12 +34,13 @@ export default function Sidebar({ currentUser, selectedUser, onSelectUser, onOpe
   useEffect(() => {
     const handleOnlineStatusChanged = () => {
       // Refetch online users when status changes
-      window.location.reload(); // Simple refresh for now
+      queryClient.invalidateQueries({ queryKey: ["/api/users/online"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
     };
 
     window.addEventListener('onlineStatusChanged', handleOnlineStatusChanged);
     return () => window.removeEventListener('onlineStatusChanged', handleOnlineStatusChanged);
-  }, []);
+  }, [queryClient]);
 
   const filteredConversations = conversations.filter(conv =>
     conv.otherUser.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
