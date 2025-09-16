@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Send, Paperclip, Smile, Info, Menu } from "lucide-react";
+import { Send, Paperclip, Smile, Info, Menu, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -59,10 +59,12 @@ export default function ChatWindow({ currentUser, selectedUser, onToggleUserInfo
     },
   });
 
-  // Scroll to bottom when new messages arrive
+  // Scroll to bottom when new messages arrive (but not during upload to prevent shifting)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (!imageUploadMutation.isPending) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, imageUploadMutation.isPending]);
 
   // Listen for new messages via WebSocket
   useEffect(() => {
@@ -172,7 +174,7 @@ export default function ChatWindow({ currentUser, selectedUser, onToggleUserInfo
             <AvatarImage src={selectedUser.profilePhoto || undefined} />
             <AvatarFallback>{selectedUser.firstName[0]}{selectedUser.lastName[0]}</AvatarFallback>
             {selectedUser.isOnline && (
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-accent border-2 border-card rounded-full"></div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-accent border-2 border-card rounded-full"></div>
             )}
           </Avatar>
           <div>
@@ -295,7 +297,11 @@ export default function ChatWindow({ currentUser, selectedUser, onToggleUserInfo
             disabled={imageUploadMutation.isPending}
             data-testid="button-upload-file"
           >
-            <Paperclip className="h-4 w-4" />
+            {imageUploadMutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Paperclip className="h-4 w-4" />
+            )}
           </Button>
 
           <div className="flex-1 relative">

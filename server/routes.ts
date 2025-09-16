@@ -163,6 +163,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
   const connectedUsers = new Map<string, { ws: WebSocket; userId: string }>();
+  
+  function broadcastToAll(message: any) {
+    connectedUsers.forEach(({ ws }) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(message));
+      }
+    });
+  }
+
+  // Logout route - placed here to access connectedUsers
+  app.post("/api/logout", async (req: AuthenticatedRequest, res, next) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    
+    const userId = req.user!.id.toString();
+    
+    // Close WebSocket connection if exists
+    const userConnection = connectedUsers.get(userId);
+    if (userConnection) {
+      userConnection.ws.close();
+      connectedUsers.delete(userId);
+      await storage.setUserOnlineStatus(userId, false);
+      
+      // Broadcast user offline status
+      broadcastToAll({
+        type: 'userOffline',
+        userId,
+      });
+    }
+    
+    // Logout from session
+    req.logout((err) => {
+      if (err) return next(err);
+      res.sendStatus(200);
+    });
+  });
 
   wss.on('connection', (ws) => {
     let userId: string | null = null;
@@ -256,14 +291,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     });
   });
-
-  function broadcastToAll(message: any) {
-    connectedUsers.forEach(({ ws }) => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(message));
-      }
-    });
-  }
 
   return httpServer;
 }

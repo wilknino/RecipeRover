@@ -30,7 +30,7 @@ export default function UserInfoPanel({ user, isVisible, className }: UserInfoPa
             {user.firstName[0]}{user.lastName[0]}
           </AvatarFallback>
           {user.isOnline && (
-            <div className="absolute bottom-2 right-2 w-4 h-4 bg-accent border-2 border-card rounded-full"></div>
+            <div className="absolute bottom-1 right-1 w-4 h-4 bg-accent border-2 border-card rounded-full"></div>
           )}
         </Avatar>
         

@@ -71,7 +71,7 @@ export default function Sidebar({ currentUser, selectedUser, onSelectUser, onOpe
             <Avatar className="relative">
               <AvatarImage src={currentUser.profilePhoto || undefined} />
               <AvatarFallback>{currentUser.firstName[0]}{currentUser.lastName[0]}</AvatarFallback>
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-accent border-2 border-card rounded-full"></div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-accent border-2 border-card rounded-full"></div>
             </Avatar>
             <div>
               <h3 className="font-semibold text-sm" data-testid="text-current-user-name">
@@ -136,7 +136,7 @@ export default function Sidebar({ currentUser, selectedUser, onSelectUser, onOpe
                     {conversation.otherUser.firstName[0]}{conversation.otherUser.lastName[0]}
                   </AvatarFallback>
                   {conversation.otherUser.isOnline && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-accent border-2 border-card rounded-full"></div>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-accent border-2 border-card rounded-full"></div>
                   )}
                 </Avatar>
                 <div className="flex-1 min-w-0">
@@ -175,7 +175,7 @@ export default function Sidebar({ currentUser, selectedUser, onSelectUser, onOpe
             >
               <AvatarImage src={user.profilePhoto || undefined} />
               <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-accent border-2 border-card rounded-full"></div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-accent border-2 border-card rounded-full"></div>
             </Avatar>
           ))}
         </div>
